@@ -1,0 +1,121 @@
+const movieSearchBox = document.getElementById('movie-search-box');
+const searchList = document.getElementById('search-list');
+const resultGrid = document.getElementById('result-grid');
+const viewFavoritesBtn = document.getElementById('view-favorites-btn');
+
+
+// Function to fetch movies based on the search term
+async function loadMovies(searchTerm) {
+    const URL = `https://www.omdbapi.com/?s=${searchTerm}&page=1&apikey=a149aa8d`;
+    const res = await fetch(`${URL}`);
+    const data = await res.json();
+    if (data.Response == "True") displayMovieList(data.Search);
+}
+
+
+// Function to handle search input and display results
+function findMovies() {
+    let searchTerm = (movieSearchBox.value).trim();
+    if (searchTerm.length > 0) {
+        searchList.classList.remove('hide-search-list');
+        loadMovies(searchTerm);
+    } else {
+        searchList.classList.add('hide-search-list');
+    }
+}
+
+
+// Function to display the list of searched movies
+function displayMovieList(movies) {
+    searchList.innerHTML = "";
+    for (let idx = 0; idx < movies.length; idx++) {
+        let movieListItem = document.createElement('div');
+        movieListItem.dataset.id = movies[idx].imdbID;
+        movieListItem.classList.add('search-list-item');
+        let moviePoster = (movies[idx].Poster != "N/A") ? movies[idx].Poster : "image_not_found.png";
+
+        movieListItem.innerHTML = `
+        <div class="search-item-thumbnail">
+            <img src="${moviePoster}">
+        </div>
+        <div class="search-item-info">
+            <h3>${movies[idx].Title}</h3>
+            <p>${movies[idx].Year}</p>
+            <button class="favorite-btn" onclick="addToFavorites('${movies[idx].imdbID}')">Add to Favorites</button>
+        </div>`;
+        searchList.appendChild(movieListItem);
+    }
+    loadMovieDetails();
+}
+
+
+// Function to load movie details when an item is clicked
+function loadMovieDetails() {
+    const searchListMovies = searchList.querySelectorAll('.search-list-item');
+    searchListMovies.forEach(movie => {
+        movie.addEventListener('click', async () => {
+            if (event.target.tagName !== 'BUTTON') {
+                searchList.classList.add('hide-search-list');
+                movieSearchBox.value = "";
+                const result = await fetch(`https://www.omdbapi.com/?i=${movie.dataset.id}&apikey=a149aa8d`);
+                const movieDetails = await result.json();
+                displayMovieDetails(movieDetails);
+            }
+        });
+    });
+}
+
+
+
+// Function to display detailed information about a selected movie
+function displayMovieDetails(details) {
+    resultGrid.innerHTML = `
+    <div class="movie-poster">
+        <img src="${(details.Poster != "N/A") ? details.Poster : "image_not_found.png"}" alt="movie poster">
+    </div>
+    <div class="movie-info">
+        <h3 class="movie-title">${details.Title}</h3>
+        <ul class="movie-misc-info">
+            <li class="year">Year: ${details.Year}</li>
+            <li class="rated">Ratings: ${details.Rated}</li>
+            <li class="released">Released: ${details.Released}</li>
+        </ul>
+        <p class="genre"><b>Genre:</b> ${details.Genre}</p>
+        <p class="writer"><b>Writer:</b> ${details.Writer}</p>
+        <p class="actors"><b>Actors: </b>${details.Actors}</p>
+        <p class="plot"><b>Plot:</b> ${details.Plot}</p>
+        <p class="language"><b>Language:</b> ${details.Language}</p>
+        <button class="favorite-btn" onclick="addToFavorites('${details.imdbID}')">Add to Favorites</button>
+    </div>`;
+}
+
+
+// Function to add a movie to the favorites list stored in localStorage
+function addToFavorites(movieId) {
+    let favoriteMovies = JSON.parse(localStorage.getItem('favoriteMovies')) || [];
+    if (!favoriteMovies.includes(movieId)) {
+        favoriteMovies.push(movieId);
+        localStorage.setItem('favoriteMovies', JSON.stringify(favoriteMovies));
+        alert("Movie added to favorites!");
+    } else {
+        alert("Movie is already in favorites!");
+    }
+}
+
+function navigateToFavorites() {
+    window.location.href = "favourite.html";
+}
+
+viewFavoritesBtn.addEventListener('click', navigateToFavorites);
+
+
+// Event listener to hide the search list when clicking outside the search box
+window.addEventListener('click', (event) => {
+    if (event.target.className !== "form-control") {
+        searchList.classList.add('hide-search-list');
+    }
+});
+
+
+// Event listener to handle keyup events in the search box
+movieSearchBox.addEventListener('keyup', findMovies);

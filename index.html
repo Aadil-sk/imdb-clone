@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Movie Space</title>
+    <!-- Font Awesome icons CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="wrapper">
+        <!-- Logo -->
+        <div class="logo">
+            <div class="container">
+                <p>My<span> Movie Space</span></p>
+            </div>
+        </div>
+        <div class="navigation">
+            <button id="view-favorites-btn" class="favorite-page-btn">View Favorites</button>
+        </div>
+        <!-- Search Container -->
+        <div class="search-container">
+            <div class="search-element">
+                <h3>Search Name of Movie:</h3>
+                <input type="text" class="form-control" placeholder="Search movie ..." id="movie-search-box" onkeyup="findMovies()" onclick="findMovies()">
+                <div class="search-list" id="search-list"></div>
+            </div>
+        </div>
+        <!-- Result Container -->
+        <div class="container">
+            <div class="result-container">
+                <div class="result-grid" id="result-grid"></div>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
